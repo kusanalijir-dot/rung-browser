@@ -1,59 +1,64 @@
-# สร้างไฟล์ติดตั้ง Windows (.exe) และ Mac (.dmg) อัตโนมัติบนเครื่องของ GitHub
-# วิธีใช้: อัปโหลดโปรเจกต์นี้ขึ้น GitHub repo > แท็บ Actions > Build installers > Run workflow
-# ไฟล์ที่ได้: ดาวน์โหลดจากหัวข้อ Artifacts ในหน้าผลรัน
-# ถ้า push tag ชื่อขึ้นต้นด้วย v (เช่น v1.0.0) จะแนบไฟล์เข้า Releases ให้อัตโนมัติด้วย
 name: Build installers
 
 on:
-  workflow_dispatch:        # กดปุ่ม Run workflow เองได้
+  workflow_dispatch:
   push:
-    tags: ['v*']            # หรือสร้าง tag v1.0.0 แล้ว build + ออก Release
+    tags: ['v*']
 
 permissions:
-  contents: write           # ต้องมีเพื่อให้แนบไฟล์เข้า Releases ได้
+  contents: write
 
 jobs:
   build:
     strategy:
-      fail-fast: false      # ถ้าฝั่งหนึ่งพัง อีกฝั่งยัง build ต่อ
+      fail-fast: false
       matrix:
         os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
-      - name: ติดตั้ง dependencies
+      - name: install
         run: npm install --no-audit --no-fund
 
-      - name: Build Windows (.exe)
+      - name: Build Windows
         if: matrix.os == 'windows-latest'
-        run: npx electron-builder --win nsis --x64 --publish never
+        shell: bash
         env:
-          # ใส่ใบรับรอง code-signing เป็น Secrets ของ repo ถ้ามี (ไม่ใส่ก็ build ได้ แต่จะไม่เซ็น)
-          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WIN_CERT: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CERT_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: |
+          if [ -n "$WIN_CERT" ]; then
+            export CSC_LINK="$WIN_CERT"
+            export CSC_KEY_PASSWORD="$WIN_CERT_PASSWORD"
+          fi
+          npx electron-builder --win nsis --x64 --publish never
 
-      - name: Build Mac (.dmg)
+      - name: Build Mac
         if: matrix.os == 'macos-latest'
-        run: npx electron-builder --mac dmg --universal --publish never
+        shell: bash
         env:
-          # ไม่มีใบรับรอง = ปิดการค้นหา identity ไม่งั้น electron-builder อาจค้างหรือ error
-          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.MAC_CSC_LINK != '' }}
-          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
-          # ใส่ 3 ตัวนี้เมื่อมีบัญชี Apple Developer แล้วต้องการ notarize
+          MAC_CERT: ${{ secrets.MAC_CSC_LINK }}
+          MAC_CERT_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -n "$MAC_CERT" ]; then
+            export CSC_LINK="$MAC_CERT"
+            export CSC_KEY_PASSWORD="$MAC_CERT_PASSWORD"
+          else
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
+          npx electron-builder --mac dmg --universal --publish never
 
-      - name: เก็บไฟล์ติดตั้งไว้ให้ดาวน์โหลด
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: Rung-${{ matrix.os }}
           if-no-files-found: error
@@ -62,11 +67,11 @@ jobs:
             dist/*.exe
             dist/*.dmg
 
-      - name: แนบเข้า Releases (เฉพาะตอน push tag v*)
+      - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          draft: true       # ออกมาเป็นฉบับร่างก่อน ตรวจแล้วค่อยกด Publish
+          draft: true
           files: |
             dist/*.exe
             dist/*.dmg
