@@ -1,0 +1,72 @@
+# สร้างไฟล์ติดตั้ง Windows (.exe) และ Mac (.dmg) อัตโนมัติบนเครื่องของ GitHub
+# วิธีใช้: อัปโหลดโปรเจกต์นี้ขึ้น GitHub repo > แท็บ Actions > Build installers > Run workflow
+# ไฟล์ที่ได้: ดาวน์โหลดจากหัวข้อ Artifacts ในหน้าผลรัน
+# ถ้า push tag ชื่อขึ้นต้นด้วย v (เช่น v1.0.0) จะแนบไฟล์เข้า Releases ให้อัตโนมัติด้วย
+name: Build installers
+
+on:
+  workflow_dispatch:        # กดปุ่ม Run workflow เองได้
+  push:
+    tags: ['v*']            # หรือสร้าง tag v1.0.0 แล้ว build + ออก Release
+
+permissions:
+  contents: write           # ต้องมีเพื่อให้แนบไฟล์เข้า Releases ได้
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false      # ถ้าฝั่งหนึ่งพัง อีกฝั่งยัง build ต่อ
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: ติดตั้ง dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Build Windows (.exe)
+        if: matrix.os == 'windows-latest'
+        run: npx electron-builder --win nsis --x64 --publish never
+        env:
+          # ใส่ใบรับรอง code-signing เป็น Secrets ของ repo ถ้ามี (ไม่ใส่ก็ build ได้ แต่จะไม่เซ็น)
+          CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+
+      - name: Build Mac (.dmg)
+        if: matrix.os == 'macos-latest'
+        run: npx electron-builder --mac dmg --universal --publish never
+        env:
+          # ไม่มีใบรับรอง = ปิดการค้นหา identity ไม่งั้น electron-builder อาจค้างหรือ error
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.MAC_CSC_LINK != '' }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          # ใส่ 3 ตัวนี้เมื่อมีบัญชี Apple Developer แล้วต้องการ notarize
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      - name: เก็บไฟล์ติดตั้งไว้ให้ดาวน์โหลด
+        uses: actions/upload-artifact@v4
+        with:
+          name: Rung-${{ matrix.os }}
+          if-no-files-found: error
+          retention-days: 30
+          path: |
+            dist/*.exe
+            dist/*.dmg
+
+      - name: แนบเข้า Releases (เฉพาะตอน push tag v*)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true       # ออกมาเป็นฉบับร่างก่อน ตรวจแล้วค่อยกด Publish
+          files: |
+            dist/*.exe
+            dist/*.dmg
