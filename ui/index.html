@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https: http:; style-src 'self' 'unsafe-inline'; font-src 'self'">
+<title>รุ้ง</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <!-- แถบข้างลอย (วัสดุกระจก) -->
+  <aside id="sidebar" class="glass">
+    <div id="side-head">
+      <span class="grow"></span>
+      <button class="ib" id="btn-collapse" title="ซ่อนแถบข้าง (Ctrl/Cmd+S)"></button>
+    </div>
+    <div id="space-head">
+      <button id="space-btn" title="สลับ Space"><span class="sdot" id="space-dot"></span><span id="space-name"></span><span class="chev" id="space-chev"></span></button>
+      <span class="grow"></span>
+      <button class="ib" id="btn-newtab" title="แท็บใหม่ (Ctrl/Cmd+T)"></button>
+    </div>
+    <div id="side-scroll">
+      <div id="pins"></div>
+      <div class="sec" id="sec-tabs">แท็บ</div>
+      <div id="tabs"></div>
+      <div id="priv-sec" hidden>
+        <div class="sec">แท็บส่วนตัว</div>
+        <div id="privtabs"></div>
+      </div>
+    </div>
+    <div id="side-bottom">
+      <div id="spaces"></div>
+      <button class="ib" id="btn-menu" title="เมนู"></button>
+    </div>
+  </aside>
+
+  <main id="main">
+    <!-- แถบเครื่องมือ: ปุ่มจัดกลุ่มเป็นแคปซูล ช่องที่อยู่อยู่กลาง -->
+    <div id="toolbar">
+      <div class="tgroup" id="navgroup">
+        <button class="ib" id="btn-expand" title="แสดงแถบข้าง" hidden></button>
+        <button class="ib" id="btn-back" title="ย้อนกลับ"></button>
+        <button class="ib" id="btn-fwd" title="ไปข้างหน้า"></button>
+      </div>
+      <span class="grow"></span>
+      <div id="addr">
+        <span id="addr-ic"></span>
+        <input id="url" type="text" spellcheck="false" autocomplete="off" placeholder="ค้นหาหรือป้อนชื่อเว็บไซต์">
+        <button class="ib sm" id="btn-reload" title="โหลดใหม่"></button>
+        <div id="loadbar"></div>
+      </div>
+      <span class="grow"></span>
+      <div class="tgroup">
+        <button class="ib" id="btn-bm" title="บุ๊กมาร์กหน้านี้"></button>
+        <button class="ib" id="btn-reader" title="โหมดอ่าน (Ctrl/Cmd+Shift+R)"></button>
+        <button class="ib" id="btn-find" title="ค้นหาในหน้า (Ctrl/Cmd+F)"></button>
+      </div>
+      <button class="tgroup chip" id="shield-chip" title="ความเป็นส่วนตัว"></button>
+    </div>
+    <div id="content">
+      <div id="findbar" hidden>
+        <div class="field"><span id="find-ic"></span><input id="find-in" type="text" placeholder="ค้นหาในหน้านี้" spellcheck="false"><span id="find-count"></span></div>
+        <div class="tgroup">
+          <button class="ib sm" id="find-prev" title="ก่อนหน้า"></button>
+          <button class="ib sm" id="find-next" title="ถัดไป"></button>
+        </div>
+        <button class="txtbtn" id="find-close">เสร็จ</button>
+      </div>
+      <div id="webarea"></div>
+    </div>
+    <!-- ชั้นซ้อน: ภาพหน้าเว็บเบลอเป็นพื้นหลัง + แผงต่าง ๆ -->
+    <div id="overlay" hidden>
+      <div id="backdrop"></div>
+      <div id="suggest" hidden></div>
+      <div id="panel" hidden></div>
+    </div>
+  </main>
+</div>
+
+<div id="menu" hidden></div>
+<div id="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

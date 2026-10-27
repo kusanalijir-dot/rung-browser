@@ -1,0 +1,225 @@
+/* ================================================================
+   Rung Design System (แนว Apple ยุค Liquid Glass)
+   - สีอ้างอิงบทบาท (label / fill / separator / material) สลับ light/dark ตามระบบ
+   - วัสดุกระจก: โปร่งแสง + เบลอ + ขอบไฮไลต์ด้านใน
+   - มุมโค้ง: 8 ปุ่มเล็ก / 10 ช่องกรอก / 14 กลุ่มรายการ / 20 แถบข้าง / 26 แผ่นแผง / แคปซูล
+   ================================================================ */
+@font-face{font-family:"Inter";src:url(fonts/Inter-VF.ttf) format("truetype");font-weight:100 900;font-display:block}
+@font-face{font-family:"Noto Sans Thai";src:url(fonts/NotoSansThai-VF.ttf) format("truetype");font-weight:100 900;font-display:block}
+
+:root{
+  color-scheme:light;
+  --font:-apple-system,BlinkMacSystemFont,"Inter","Noto Sans Thai","Segoe UI Variable",system-ui,sans-serif;
+  --tint:#1F7F83;
+  --tint-fg:#fff;
+  --label:#000; --label2:rgba(60,60,67,.62); --label3:rgba(60,60,67,.32);
+  --sep:rgba(60,60,67,.16);
+  --fill:rgba(120,120,128,.12); --fill2:rgba(120,120,128,.20);
+  --window:#ECECF1;                       /* ใช้เมื่อระบบไม่มีวัสดุโปร่งแสง */
+  --glass:rgba(255,255,255,.58); --glass-hl:rgba(255,255,255,.85); --glass-edge:rgba(0,0,0,.08);
+  --thick:rgba(248,248,251,.86);
+  --cell:#fff; --grouped:rgba(242,242,247,.92);
+  --shadow:0 10px 34px rgba(0,0,0,.12),0 1px 3px rgba(0,0,0,.06);
+  --r-sm:8px; --r-md:10px; --r-lg:14px; --r-side:20px; --r-sheet:26px;
+  --side:260px; --tb:52px;
+  --space:transparent; --wash:8%;
+}
+/* โหมดมืด: main ส่งค่า dark มาตาม nativeTheme (ตามระบบ หรือที่ผู้ใช้เลือก) */
+:root.dark{
+    color-scheme:dark;
+    --tint:#4CC3C7;
+    --tint-fg:#00201F;
+    --label:#fff; --label2:rgba(235,235,245,.62); --label3:rgba(235,235,245,.3);
+    --sep:rgba(84,84,88,.5);
+    --fill:rgba(120,120,128,.24); --fill2:rgba(120,120,128,.34);
+    --window:#1C1C1E;
+    --glass:rgba(44,44,48,.55); --glass-hl:rgba(255,255,255,.14); --glass-edge:rgba(0,0,0,.4);
+    --thick:rgba(32,32,36,.88);
+    --cell:#2C2C2E; --grouped:rgba(28,28,30,.94);
+    --shadow:0 12px 40px rgba(0,0,0,.5),0 1px 3px rgba(0,0,0,.3);
+    --wash:13%;
+}
+
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;font:400 14px/1.45 var(--font);color:var(--label);background:transparent;-webkit-font-smoothing:antialiased}
+body.solid{background:var(--window)}
+button,input{font:inherit;color:inherit}
+svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+[hidden]{display:none!important}
+.grow{flex:1}
+
+/* วัสดุกระจก */
+.glass{background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:inset 0 0 0 .5px var(--glass-hl),0 0 0 .5px var(--glass-edge),var(--shadow)}
+
+#app{display:flex;height:100vh;padding:8px 0 0 8px}
+
+/* ---------------------------------------------------------------- แถบข้าง */
+#sidebar{width:var(--side);flex:none;margin-bottom:8px;border-radius:var(--r-side);display:flex;flex-direction:column;padding:0 8px 8px;transition:margin .25s cubic-bezier(.3,.7,.2,1),opacity .2s}
+/* กลิ่น Arc: แถบข้างย้อมสีประจำ Space บาง ๆ */
+#sidebar{background-image:linear-gradient(color-mix(in srgb,var(--space) var(--wash),transparent),color-mix(in srgb,var(--space) var(--wash),transparent));transition:margin .25s cubic-bezier(.3,.7,.2,1),opacity .2s,background-color .3s}
+body.nosidebar #sidebar{margin-left:calc(-1 * var(--side) - 16px);opacity:0}
+#side-head{height:44px;display:flex;align-items:center;-webkit-app-region:drag;flex:none}
+body:not(.mac) #side-head{height:36px}
+#space-head{display:flex;align-items:center;gap:4px;padding:2px 2px 6px;flex:none}
+#space-btn{display:flex;align-items:center;gap:8px;height:32px;padding:0 10px 0 8px;border:0;border-radius:var(--r-md);background:transparent;cursor:default;font-weight:600;font-size:15px}
+#space-btn:hover{background:var(--fill)}
+.sdot{width:10px;height:10px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+.chev{color:var(--label2);display:grid}.chev svg{width:12px;height:12px;stroke-width:2.2}
+#side-scroll{flex:1;overflow-y:auto;overflow-x:hidden;margin:0 -4px;padding:0 4px}
+#side-scroll::-webkit-scrollbar{width:0}
+.sec{font-size:11.5px;font-weight:600;color:var(--label2);padding:12px 10px 4px}
+#pins{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px 2px 4px}
+.pin{aspect-ratio:1;border-radius:12px;background:var(--fill);display:grid;place-items:center;cursor:default;position:relative}
+.pin:hover{background:var(--fill2)}
+.pin.active{background:var(--cell);box-shadow:0 0 0 1.5px var(--tint),0 2px 8px rgba(0,0,0,.08)}
+.pin .fav{width:20px;height:20px}
+.row{display:flex;align-items:center;gap:9px;height:32px;padding:0 6px 0 9px;border-radius:var(--r-md);cursor:default;position:relative}
+.row:hover{background:var(--fill)}
+.row.active{background:var(--cell);box-shadow:0 1px 4px rgba(0,0,0,.08),inset 0 0 0 .5px var(--glass-edge)}
+.row .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px}
+.row .x{display:none;width:20px;height:20px;border-radius:6px;place-items:center;color:var(--label2)}
+.row .x svg{width:12px;height:12px;stroke-width:2}
+.row:hover .x{display:grid}
+.row .x:hover{background:var(--fill2);color:var(--label)}
+.fav{width:16px;height:16px;border-radius:4px;flex:none;object-fit:cover}
+.fav.l{display:grid;place-items:center;background:var(--fill2);color:var(--label2);font-size:10px;font-weight:600}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--fill2);border-top-color:var(--tint);animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+#side-bottom{display:flex;align-items:center;gap:6px;flex:none;padding-top:8px}
+#spaces{flex:1;display:flex;gap:4px;overflow-x:auto;padding:2px}
+#spaces::-webkit-scrollbar{display:none}
+.sp{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;cursor:default}
+.sp:hover{background:var(--fill)}
+.sp i{width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+.sp.active{background:var(--fill2)}
+.sp.add{color:var(--label2)}.sp.add svg{width:14px;height:14px}
+
+/* ปุ่มไอคอน */
+.ib{width:30px;height:30px;border:0;background:transparent;border-radius:var(--r-sm);display:grid;place-items:center;cursor:default;color:var(--label2);flex:none;-webkit-app-region:no-drag}
+.ib:hover:not(:disabled){background:var(--fill);color:var(--label)}
+.ib:active:not(:disabled){background:var(--fill2)}
+.ib:disabled{opacity:.35}
+.ib.sm{width:24px;height:24px}.ib.sm svg{width:15px;height:15px}
+.ib.on{color:var(--tint)}
+
+/* ---------------------------------------------------------------- แถบเครื่องมือ */
+#main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+#toolbar{height:var(--tb);flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;-webkit-app-region:drag}
+body.mac.nosidebar #toolbar{padding-left:84px}
+body:not(.mac) #toolbar{padding-right:146px}
+.tgroup{display:flex;align-items:center;gap:0;height:34px;padding:0 2px;border-radius:999px;-webkit-app-region:no-drag;
+  background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  box-shadow:inset 0 0 0 .5px var(--glass-hl),0 0 0 .5px var(--glass-edge),0 2px 8px rgba(0,0,0,.06)}
+.tgroup .ib{border-radius:999px;width:32px}
+.chip{gap:5px;padding:0 12px 0 10px;border:0;color:var(--label2);font-size:12.5px;font-weight:600;cursor:default}
+.chip svg{width:15px;height:15px;color:var(--tint)}
+.chip:hover{color:var(--label)}
+#addr{position:relative;width:min(600px,52%);height:34px;display:flex;align-items:center;gap:7px;padding:0 4px 0 12px;border-radius:999px;-webkit-app-region:no-drag;
+  background:var(--glass);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  box-shadow:inset 0 0 0 .5px var(--glass-hl),0 0 0 .5px var(--glass-edge),0 2px 8px rgba(0,0,0,.06)}
+#addr:focus-within{background:var(--cell);box-shadow:0 0 0 3px color-mix(in srgb,var(--tint) 35%,transparent),0 0 0 .5px var(--glass-edge)}
+#addr-ic{display:grid;color:var(--label2)}#addr-ic svg{width:13px;height:13px}
+#url{flex:1;min-width:0;border:0;outline:0;background:transparent;-webkit-user-select:text;user-select:text;font-size:13.5px;text-align:center}
+#addr:focus-within #url{text-align:left}
+#url::placeholder{color:var(--label2)}
+#loadbar{position:absolute;left:14px;right:14px;bottom:1px;height:2px;border-radius:2px;background:var(--tint);transform-origin:left;transform:scaleX(0);transition:transform .3s,opacity .3s;opacity:0}
+#loadbar.on{opacity:1;transform:scaleX(.7)}
+
+/* ---------------------------------------------------------------- เนื้อหา */
+#content{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+#webarea{flex:1;min-height:0;background:var(--cell)}
+#findbar{display:flex;align-items:center;gap:8px;height:44px;flex:none;padding:0 12px}
+.field{display:flex;align-items:center;gap:6px;height:30px;width:300px;padding:0 10px;border-radius:var(--r-md);background:var(--fill)}
+.field svg{width:14px;height:14px;color:var(--label2)}
+.field input{flex:1;min-width:0;border:0;outline:0;background:transparent;-webkit-user-select:text;user-select:text;font-size:13.5px}
+#find-count{font-size:12px;color:var(--label2);white-space:nowrap}
+.txtbtn{border:0;background:transparent;color:var(--tint);font-weight:600;font-size:13.5px;padding:4px 8px;border-radius:var(--r-sm);cursor:default}
+.txtbtn:hover{background:var(--fill)}
+
+/* ---------------------------------------------------------------- ชั้นซ้อน */
+#overlay{position:absolute;left:0;right:0;top:var(--tb);bottom:0;z-index:5;overflow:hidden}
+#backdrop{position:absolute;inset:0;background:var(--window) center/cover no-repeat;filter:blur(26px) saturate(150%);transform:scale(1.08)}
+#backdrop::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--window) 45%,transparent)}
+#suggest{position:absolute;top:6px;left:50%;transform:translateX(-50%);width:min(640px,calc(100% - 32px));max-height:calc(100% - 24px);overflow-y:auto;border-radius:var(--r-lg);padding:8px;
+  background:var(--thick);-webkit-backdrop-filter:blur(40px) saturate(180%);backdrop-filter:blur(40px) saturate(180%);box-shadow:inset 0 0 0 .5px var(--glass-hl),0 0 0 .5px var(--glass-edge),var(--shadow)}
+#suggest .row{height:38px}
+#suggest .row.sel{background:var(--tint);color:var(--tint-fg)}
+#suggest .row.sel .sub,#suggest .row.sel .ic{color:inherit;opacity:.85}
+#suggest .ic{display:grid;color:var(--label2)}
+#suggest .col{flex:1;min-width:0;display:flex;align-items:baseline;gap:8px}
+#suggest .sub{font-size:12px;color:var(--label2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.favgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:10px;padding:6px 4px 10px}
+.favtile{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border-radius:var(--r-lg);cursor:default}
+.favtile:hover{background:var(--fill)}
+.favtile .big{width:52px;height:52px;border-radius:14px;background:var(--cell);display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.1),inset 0 0 0 .5px var(--glass-edge);font-weight:600;font-size:20px;color:var(--label2)}
+.favtile .big img{width:28px;height:28px;border-radius:6px}
+.favtile span{font-size:11.5px;max-width:84px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--label2)}
+.h3{font-size:13px;font-weight:700;padding:8px 10px 4px}
+
+#panel{position:absolute;top:16px;left:50%;transform:translateX(-50%);width:min(620px,calc(100% - 32px));max-height:calc(100% - 32px);overflow-y:auto;border-radius:var(--r-sheet);padding:18px 18px 16px;
+  background:var(--grouped);-webkit-backdrop-filter:blur(40px) saturate(180%);backdrop-filter:blur(40px) saturate(180%);box-shadow:inset 0 0 0 .5px var(--glass-hl),0 0 0 .5px var(--glass-edge),var(--shadow);
+  animation:pop .22s cubic-bezier(.3,.8,.3,1.1)}
+@keyframes pop{from{opacity:0;transform:translateX(-50%) scale(.96)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+#panel::-webkit-scrollbar{width:0}
+.ph{display:flex;align-items:center;gap:10px;margin:0 4px 4px}
+.ph h2{flex:1;margin:0;font-size:22px;font-weight:700;letter-spacing:-.2px}
+.lead{color:var(--label2);font-size:13px;margin:0 4px 10px}
+.ghd{font-size:12px;font-weight:500;color:var(--label2);margin:18px 16px 6px;text-transform:none}
+.gft{font-size:12px;color:var(--label2);margin:6px 16px 0}
+.group{background:var(--cell);border-radius:var(--r-lg);overflow:hidden}
+.cellr{display:flex;align-items:center;gap:12px;min-height:44px;padding:9px 14px;position:relative}
+.cellr + .cellr::before{content:"";position:absolute;top:0;left:14px;right:0;height:.5px;background:var(--sep)}
+.cellr.click{cursor:default}.cellr.click:hover{background:var(--fill)}
+.cellr .tx{flex:1;min-width:0}
+.cellr .tt{font-size:14px}
+.cellr .ds{font-size:12px;color:var(--label2);margin-top:1px}
+.cellr .nt{font-size:12px;color:var(--label3);margin-top:1px}
+.cellr .ic{display:grid;color:var(--tint)}
+.cellr .chk{color:var(--tint);display:grid}
+.cellr .chk svg{width:16px;height:16px;stroke-width:2.2}
+.cellr .tt.ell,.cellr .ds.ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* สวิตช์ */
+.sw{width:42px;height:25px;border-radius:999px;background:var(--fill2);position:relative;flex:none;transition:background .2s;cursor:default}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:21px;height:21px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(0,0,0,.2),0 0 0 .5px rgba(0,0,0,.04);transition:left .2s cubic-bezier(.3,.7,.3,1.2)}
+.sw.on{background:var(--tint)}.sw.on::after{left:19px}
+/* ปุ่มข้อความ/ปุ่มหลัก */
+.btnrow{display:flex;gap:8px;margin-top:16px;justify-content:flex-end}
+.btn{height:32px;padding:0 16px;border-radius:999px;border:0;background:var(--fill);font-weight:500;cursor:default}
+.btn:hover{background:var(--fill2)}
+.btn.pri{background:var(--tint);color:var(--tint-fg);font-weight:600}
+.btn.pri:hover{filter:brightness(1.06)}
+.btn.danger{color:#FF3B30}
+.xbtn{width:28px;height:28px;border-radius:50%;border:0;background:var(--fill);display:grid;place-items:center;color:var(--label2);cursor:default}
+.xbtn svg{width:12px;height:12px;stroke-width:2.4}
+.xbtn:hover{background:var(--fill2)}
+/* สถิติ */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 0}
+.stat{background:var(--cell);border-radius:var(--r-lg);padding:12px 12px 10px}
+.stat b{display:block;font-size:24px;font-weight:700;letter-spacing:-.3px;color:var(--tint)}
+.stat span{font-size:11.5px;color:var(--label2)}
+/* ตัวเลือกสี */
+.swatches{display:flex;flex-wrap:wrap;gap:12px;padding:14px}
+.swc{width:30px;height:30px;border-radius:50%;cursor:default;position:relative;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.15)}
+.swc.on::after{content:"";position:absolute;inset:-4px;border-radius:50%;box-shadow:0 0 0 2px var(--label3)}
+.seg{display:flex;padding:2px;border-radius:9px;background:var(--fill);margin:0 0 0 auto}
+.seg button{border:0;background:transparent;padding:4px 12px;border-radius:7px;font-size:12.5px;cursor:default}
+.seg button.on{background:var(--cell);box-shadow:0 1px 3px rgba(0,0,0,.12);font-weight:600}
+input.pi{width:100%;height:34px;border-radius:var(--r-md);border:0;background:var(--cell);padding:0 12px;outline:0;margin-top:4px;-webkit-user-select:text;user-select:text;box-shadow:inset 0 0 0 .5px var(--sep)}
+input.pi:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--tint) 35%,transparent)}
+
+/* เมนู (แบบเมนูคลิกขวาของ macOS) */
+#menu{position:fixed;left:14px;bottom:52px;width:250px;max-height:70vh;overflow-y:auto;border-radius:12px;padding:5px;z-index:20;
+  background:var(--thick);-webkit-backdrop-filter:blur(40px) saturate(180%);backdrop-filter:blur(40px) saturate(180%);box-shadow:inset 0 0 0 .5px var(--glass-hl),0 0 0 .5px var(--glass-edge),var(--shadow);animation:fade .12s}
+@keyframes fade{from{opacity:0;transform:scale(.98)}}
+#menu .mi{display:flex;align-items:center;gap:9px;height:28px;padding:0 9px;border-radius:7px;font-size:13.5px;cursor:default}
+#menu .mi svg{width:15px;height:15px;color:var(--label2)}
+#menu .mi:hover{background:var(--tint);color:var(--tint-fg)}
+#menu .mi:hover svg{color:inherit}
+#menu .mi .k{margin-left:auto;font-size:12px;color:var(--label3)}
+#menu .mi:hover .k{color:inherit;opacity:.8}
+#menu .mh{font-size:11.5px;font-weight:600;color:var(--label2);padding:6px 9px 2px}
+#menu .sep{height:.5px;background:var(--sep);margin:5px 9px}
+
+#toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);border-radius:999px;padding:9px 18px;z-index:30;font-size:13px;font-weight:500;
+  background:var(--thick);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);box-shadow:inset 0 0 0 .5px var(--glass-hl),0 0 0 .5px var(--glass-edge),var(--shadow);animation:fade .2s}

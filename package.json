@@ -1,0 +1,54 @@
+{
+  "name": "rung-browser",
+  "productName": "Rung",
+  "version": "1.0.0",
+  "description": "รุ้ง - เบราว์เซอร์บล็อกโฆษณา เน้นความเป็นส่วนตัว (Rung Browser)",
+  "main": "main.js",
+  "author": "[ชื่อผู้พัฒนา]",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dist:mac": "electron-builder --mac",
+    "dist:win": "electron-builder --win",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "app.rung.browser",
+    "productName": "Rung",
+    "files": [
+      "main.js",
+      "preload.js",
+      "tab-preload.js",
+      "lib/**",
+      "ui/**",
+      "build/icon.png",
+      "FONT-LICENSE-OFL.txt",
+      "assets/filters/**"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        "dmg"
+      ],
+      "icon": "build/icon.png",
+      "hardenedRuntime": true
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "@ghostery/adblocker": "^2.20.1"
+  }
+}

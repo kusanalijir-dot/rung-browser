@@ -1,0 +1,36 @@
+const { contextBridge, ipcRenderer } = require('electron');
+
+const send = (ch, ...a) => ipcRenderer.send(ch, ...a);
+contextBridge.exposeInMainWorld('api', {
+  ready: () => send('ui:ready'),
+  rect: (r) => send('ui:rect', r),
+  overlay: (on) => send('ui:overlay', on),
+  titlebar: (c) => send('ui:titlebar', c),
+  toggleSidebar: () => send('sidebar:toggle'),
+  newTab: (priv) => send('tab:new', !!priv),
+  closeTab: (id) => send('tab:close', id),
+  activate: (id) => send('tab:activate', id),
+  tabMenu: (id) => send('tab:menu', id),
+  go: (t) => send('go', t),
+  open: (url, inNew) => send('open', url, !!inNew),
+  nav: (w) => send('nav', w),
+  switchSpace: (i) => send('space:switch', i),
+  newSpace: (n) => send('space:new', n),
+  renameSpace: (i, n) => send('space:rename', i, n),
+  deleteSpace: (i) => send('space:delete', i),
+  setTheme: (i) => send('theme:set', i),
+  setSetting: (k, v) => send('settings:set', k, v),
+  find: (t, fwd) => send('find', t, fwd),
+  findStop: () => send('find:stop'),
+  reader: () => send('reader'),
+  toggleBookmark: () => send('bookmark:toggle'),
+  removeBookmark: (u) => send('bookmark:remove', u),
+  clearHistory: () => send('history:clear'),
+  clearData: () => send('data:clear'),
+  showDownload: (p) => send('download:show', p),
+  addExtension: () => send('ext:add'),
+  removeExtension: (id) => send('ext:remove', id),
+  updateBlocklist: () => send('blocklist:update'),
+  suggest: (q) => ipcRenderer.invoke('suggest', q),
+  on: (ch, fn) => ipcRenderer.on(ch, (_e, d) => fn(d))
+});
